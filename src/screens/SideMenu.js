@@ -15,19 +15,19 @@ export default class SideMenu extends React.Component {
         }
     }
 
-    // async updateUser() {
-    //     let {data: user} = await client.get('/user');
-    //     this.setState({user});
-    // }
+    async updateUser() {
+         let {data: user} = await client.get('/user');
+         this.setState({user});
+    }
 
-    // async componentDidMount() {
-    //     let getUser = async () => {
-    //         if (!client.getVerification())
-    //             return setTimeout(getUser, 1000);
-    //         this.updateUser();
-    //     };
-    //     getUser();
-    // }
+    async componentDidMount() {
+        let getUser = async () => {
+            if (!client.getVerification())
+                return setTimeout(getUser, 1000);
+            this.updateUser();
+        };
+        getUser();
+    }
 
 
     render() {
@@ -49,32 +49,13 @@ export default class SideMenu extends React.Component {
                             />
                         </TouchableOpacity>
                         <Image
-                            source={require("../assets/dummy-avatar.png")}
+                            source={{uri: this.state.user.avatar}}
                             style={{borderRadius: 32, height: 64, width: 64}}
                         />
                         {/* <Text style={{color: '#ffffff', fontSize: 15}}>{this.state.user.name}</Text> */}
                         <Text style={{color: '#ffffff', fontSize: 15}}>Atakan Çamurcu</Text>
                     </View>
                     <View style={{marginTop: 15, flex: 0.8, alignItems: 'center'}}>
-                        <GradientButton
-                            textStyle={{fontSize: 23}}
-                            gradientBegin="rgba(0,0,0,0.25)"
-                            gradientEnd="rgba(0,0,0,0.25)"
-                            gradientDirection="diagonal"
-                            height={40}
-                            width='75%'
-                            radius={20}
-                            children={
-                                <View style={{justifyContent:'space-around',flexDirection:'row'}}>
-                                <Image style={{width:18, height:18}} key={1}
-                                    source={require("../assets/transaction-tab.png")}/>
-                                <Text style={{color:'#fff'}} key={2}> Trades </Text>
-                                </View>}
-                            style={{marginTop: 15}}
-                            onPressAction={() => {
-                                this.props.navigation.navigate('Trade')
-                            }}
-                        />
                         <GradientButton
                             textStyle={{fontSize: 23}}
                             gradientBegin="rgba(0,0,0,0.25)"

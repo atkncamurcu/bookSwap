@@ -4,7 +4,7 @@ class Client {
     constructor() {
         this.token = null;
         this.verificated = false;
-        this.root = "http://94.177.170.53:3000/api/v1"
+        this.root = "http://32329fed.ngrok.io/api"
     }
 
     fetch = async function (url, method, body = null) {

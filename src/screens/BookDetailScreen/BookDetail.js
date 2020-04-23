@@ -18,6 +18,8 @@ export default class BookDetail extends React.Component {
     }
 
     render() {
+        const { navigation } = this.props;
+        const book_id = navigation.getParam('book_id',"NO-ID")
         return (
             <View style={{flexDirection: 'column', flex: 1}}>
                 {background()}

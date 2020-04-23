@@ -14,6 +14,7 @@ import background from "../../components/background";
 import GradientButton from "../../components/GradientButton";
 import styles from "./style";
 import { SimpleAlert } from "../../components/AlertModal";
+import client from '../../services/new_client';
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -25,6 +26,70 @@ export default class Home extends React.Component {
       recentlyBooks: []
     };
   }
+
+  promisedSetState = (newState) => {
+    return new Promise((resolve) => {
+        this.setState(newState, () => {
+            resolve()
+        });
+    });
+};
+
+goDetail(book_id){
+  this.props.navigation.navigate('BookDetail',{book_id : book_id});
+}
+
+
+  async updateUser() {
+    let {data: user} = await client.get('/user');
+    this.setState({user});
+    //console.log(this.state.user)
+
+  }
+
+  async getPopularTraders(){
+    let {data} = await client.post('/user/popular');
+    let popularTraders = data.map(e => {
+      return{
+        id : e.id,
+        name : e.name,
+        city : e.city,
+        district : e.district,
+        avatar : e.avatar,
+        rate : e.rate
+      }
+    })
+    await this.promisedSetState({popularTraders});
+  }
+
+  async getRecentylBooks(){
+    let {data} = await client.get('/books/recently');
+    let recentlyBooks = data.map( e=> {
+      return{
+        id : e.id,
+        name : e.name,
+        description : e.description,
+        publisher : e.publisher,
+        publish_year : e.year,
+        author : e.author,
+        rate : e.rate  
+      };
+    });
+    await this.promisedSetState({recentlyBooks});
+  }
+
+  async componentDidMount() {
+    this.updateUser();
+    this.getPopularTraders();
+    this.getRecentylBooks();
+    this.props.navigation.addListener('didBlur', ({action}) => {
+      if (!action.actions)
+          return;
+      action = action.actions[0];
+  })
+}
+
+
 
   render() {
     return (
@@ -40,7 +105,7 @@ export default class Home extends React.Component {
         >
           <TouchableOpacity onPress={this.props.navigation.openDrawer}>
             <Image
-              source={require("../../assets/dummy-avatar.png")}
+              source={{uri: this.state.user.avatar}}
               style={{
                 resizeMode: "contain",
                 bottom: "25%",
@@ -97,40 +162,37 @@ export default class Home extends React.Component {
               onPressAction={_ => this.props.navigation.navigate("Search")}
             />
           </View>
-          <View style={{ flexDirection: "column", flex: 8 }}>
-            <Text
-              style={{
-                fontSize: 24,
-                color: "white",
-                paddingLeft: 10,
-                flex: 0.3
-              }}
-            >
-              Recently Added Books
-            </Text>
-            <ScrollView style={{ flex: 3.7, backgroundColor: "yellow" }}>
+          <View style={{ flexDirection: "column", flex:8}}>
+            <View style={{flex:4.8}}>
+              <Text
+                style={{fontSize: 24,color: "white",paddingLeft: 10,flex: 0.3}}>
+                Recently Added Books
+              </Text>
+              <ScrollView horizontal={true} style={{flex: 4.5, backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
               {this.state.recentlyBooks.map((item, index) => (
-                <View></View>
+                <TouchableOpacity style={{height:150,width:150,marginLeft:10,alignSelf:'center',justifyContent:'center'}} onPress={() => this.goDetail(item.id)} key={index}>
+                    <Image style={{ height:150,width:150,resizeMode:'contain'}} source={require('../../assets/dummy-book.jpeg')}/>
+                </TouchableOpacity>
               ))}
             </ScrollView>
+            </View>
 
-            <Text
-              style={{
-                fontSize: 24,
-                color: "white",
-                paddingLeft: 10,
-                flex: 0.3
-              }}
-            >
+            <View style={{flex:3.2,marginTop:40}}>
+                  
+            <Text style={{ fontSize: 24,color: "white",paddingLeft: 10,flex:0.3}}>
               Most Popular Traders
             </Text>
-            <ScrollView style={{ flex: 3.7, backgroundColor: "red" }}>
+
+            <ScrollView horizontal={true} style={{ flex: 2.9, backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
               {this.state.popularTraders.map((item, index) => (
-                <View>
-                  
+                <View style={{marginLeft:15,marginTop:20,alignItems:'center'}} key={index}>
+                  <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30,alignSelf:'center'}} source={{uri:item.avatar}}/>
+                  <Text style={{fontSize:12,color:'white',textAlign:'center',marginTop:5}}> {item.name}</Text>
                 </View>
               ))}
             </ScrollView>
+
+            </View>
           </View>
         </View>
       </View>

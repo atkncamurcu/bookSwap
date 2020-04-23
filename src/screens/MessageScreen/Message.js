@@ -3,18 +3,24 @@ import {Clipboard, Image, ScrollView, Text, TouchableOpacity, View, Dimensions, 
 import background from '../../components/background';
 import styles from './style';
 import {SimpleAlert} from "../../components/AlertModal";
+import client from '../../services/new_client';
 
 export default class Message extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
-            transactions: [],
-            next_cursor: 0,
-            has_more: false,
-            shownTransactionId: null,
-            balance: "0.00000",
+            messageList : []
         }
+    }
+
+    async updateUser() {
+        let {data: user} = await client.get('/user');
+        this.setState({user});
+      }
+    
+      async componentDidMount() {
+        this.updateUser();
     }
 
     render() {
@@ -24,7 +30,7 @@ export default class Message extends React.Component {
         <View style={{ backgroundColor: "rgba(0,0,0,0.5)", flex: 1, alignItems: 'center',flexDirection: 'row',}}>
             <TouchableOpacity onPress={this.props.navigation.openDrawer}>
                 <Image
-                    source={require("../../assets/dummy-avatar.png")}
+                    source={{uri: this.state.user.avatar}}
                     style={{
                         resizeMode:'contain',
                         bottom: '25%',

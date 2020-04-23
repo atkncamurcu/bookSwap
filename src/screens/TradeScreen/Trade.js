@@ -4,6 +4,7 @@ import background from '../../components/background';
 import GradientButton from "../../components/GradientButton";
 import styles from './style';
 import {SimpleAlert} from "../../components/AlertModal";
+import client from '../../services/new_client';
 
 export default class Trade extends React.Component {
     constructor(props) {
@@ -20,6 +21,15 @@ export default class Trade extends React.Component {
 
         }
     }
+
+    async updateUser() {
+      let {data: user} = await client.get('/user');
+      this.setState({user});
+    }
+  
+    async componentDidMount() {
+      this.updateUser();
+  }
 
     render() {
 
@@ -49,7 +59,7 @@ export default class Trade extends React.Component {
         <View style={{ backgroundColor: "rgba(0,0,0,0.5)", flex: 1, alignItems: 'center',flexDirection: 'row',}}>
             <TouchableOpacity onPress={this.props.navigation.openDrawer}>
                 <Image
-                    source={require("../../assets/dummy-avatar.png")}
+                    source={{uri : this.state.user.avatar}}
                     style={{
                         resizeMode:'contain',
                         bottom: '25%',
