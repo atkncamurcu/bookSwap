@@ -17,6 +17,7 @@ import Profile from "./ProfileScreen/Profile";
 import Search from "./SearchScreen/Search";
 import TraderDetail from "./TraderDetailScreen/TraderDetail";
 import Trade from "./TradeScreen/Trade";
+import Settings from './SettingsScreen/Settings';
 
 
 const Tabs = createBottomTabNavigator(
@@ -85,6 +86,12 @@ const DrawerNavigator = createDrawerNavigator(
     },
     Home: {
       screen: Tabs
+    },
+    Trade: {
+      screen: Tabs
+    },
+    Message: {
+      screen: Tabs
     }
   },
   {
@@ -126,7 +133,10 @@ const StackNavigator = createAppContainer(
       },
       Trade: {
         screen: Trade
-      }
+      },
+      Settings: {
+        screen: Settings, 
+      },
     },
     {
       headerMode: "none"

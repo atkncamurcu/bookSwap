@@ -6,17 +6,13 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
-  PixelRatio,
-  TextInput
 } from "react-native";
 import StarRating from "react-native-star-rating";
 import background from "../../components/background";
-import GradientButton from "../../components/GradientButton";
-import { Dropdown } from "react-native-material-dropdown";
 import styles from "./style";
-import { Alert,SimpleAlert } from "../../components/AlertModal";
+import {IndicatorViewPager} from 'rn-viewpager';
 import client from '../../services/new_client';
+
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -30,13 +26,47 @@ export default class Profile extends React.Component {
     };
   }
 
+  promisedSetState = (newState) => {
+    return new Promise((resolve) => {
+        this.setState(newState, () => {
+            resolve()
+        });
+    });
+};
   async updateUser() {
     let {data: user} = await client.get('/user');
     this.setState({user});
   }
 
+  async getWishList(){
+    let {data} = await client.get('/user/wishes/'+this.state.user.id)
+    let wishList = data.map( e=> {
+      return{
+          name: e.name,
+          publisher: e.publisher,
+          author: e.author,
+          rate: e.rate
+      }
+    })
+    await this.promisedSetState({wishList});
+  }
+
+  async getUserComments() {
+    let {data} = await client.get("/user/comments/" + this.state.user.id)
+    let comments = data.map( e=> {
+        return{
+            body: e.body,
+            rate: e.rate,
+            user: e.user
+        };
+    });
+    await this.promisedSetState({comments});
+  }
+
   async componentDidMount() {
-    this.updateUser();
+    await this.updateUser();
+    this.getUserComments();
+    this.getWishList();
   }
 
 
@@ -125,20 +155,20 @@ export default class Profile extends React.Component {
             }}
           />
         </View>
-        <View style={{ flex: 9,marginTop:10 }}>
+        <View style={{ flex: 9,marginTop:10,}}>
           <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5 }}>
             <Image
-              source={{uri: this.state.user.avatar}}
+              source={{uri:this.state.user.avatar}}
               style={{
                 resizeMode: "contain",
-                borderRadius: 50,
                 height: 100,
-                width: 100
+                width: 100,
+                borderRadius:50
               }}
             />
             <View
               style={{
-                flexDirection: "column",
+                flexDirection: "column"
               }}
             >
               <Text
@@ -147,7 +177,7 @@ export default class Profile extends React.Component {
                 {this.state.user.name}
               </Text>
               <Text
-                style={{ textAlign: "center", fontSize: 18, color: "white" }}
+                style={{ textAlign: "center", fontSize: 12, color: "white" }}
               >
                 {this.state.user.city} - {this.state.user.district}
               </Text>
@@ -155,47 +185,74 @@ export default class Profile extends React.Component {
                 <StarRating
                     disabled={true}
                     maxStars={5}
-                    rating={this.state.user.rate}
+                    rating={parseInt(this.state.user.rate)}
                 />
               </View>
             </View>
           </View>
 
-          <View style={{flex:3.5,marginTop:5}}>
-          <ScrollView style={{backgroundColor:'yellow'}}>
-              {this.state.comments.map((item, index) => (
-                <View>
-                  
+          <View style={{flex:3,marginTop:10}}>
+            <IndicatorViewPager style={{flex:1,backgroundColor:"rgba(0, 0, 0, 0.5)"}}>
+            {this.state.comments.map((item, index) => (
+                <View style={{justifyContent:'center', alignItems:'center',marginTop:20}} key={index}>
+                  <View style={{flexDirection:"row"}}>
+                    <Image source={require("../../assets/backIcon.png")} style={{marginRight:'30%',marginTop:20,resizeMode: "contain",height: 20,width: 20}}/>
+                    <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30}} source={{uri: item.user.avatar}}/>
+                    <Image source={require("../../assets/nextIcon.png")} style={{marginLeft:'30%',marginTop:20,resizeMode: "contain",height: 20,width: 20}}/>
+                  </View>
+                  <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.user.city}</Text>
+                  <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.body} - {item.rate}</Text>
                 </View>
               ))}
-            </ScrollView>
-            <GradientButton
-              style={{
-                marginTop:10,
-                marginBottom:10,
-                alignSelf:'center',
-                width:'40%',
-                height: 50,
-              }}
-              textStyle={{ fontSize: 16 }}
-              gradientBegin="#ec232b"
-              gradientEnd="#f05e2c"
-              gradientDirection="diagonal"
-              radius={10}
-              text="Add Comment"
-              onPressAction={_ => this.addComment()}
-            />
+            </IndicatorViewPager>
           </View>
 
-          <View style={{flex:4}}>
-              <Text style={{fontSize:30,color:'white',textAlign:'left',marginLeft:'3%'}}>
-                    WISHLIST
+          <View style={{flex:4.5,marginTop:10}}>
+              <Text style={{fontSize:30,color:'white',textAlign:'left',marginLeft:'3%',marginBottom:10}}>
+                   WISH LIST
               </Text>
-              <ScrollView style={{backgroundColor:'grey'}}>
+              <ScrollView>
               {this.state.wishList.map((item, index) => (
-                <View>
-                  
-                </View>
+                // <TouchableOpacity 
+                //   style={{ backgroundColor: index % 2 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)'}} 
+                //   onPress={() => this.getTraders(item)} 
+                //   key={index}
+                // >
+                // </TouchableOpacity>
+
+                <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5, backgroundColor: index % 2 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)' }} key={index}>
+                  <Image
+                    source={require('../../assets/dummy-book.jpeg')}
+                    style={{
+                      resizeMode: "contain",
+                      height: 100,
+                      width: 100
+                    }}
+                  />
+                  <View
+                    style={{
+                      flexDirection: "column"
+                    }}
+                  >
+                    <Text
+                      style={{ textAlign: "center", fontSize: 24, color: "white" }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={{ textAlign: "center", fontSize: 12, color: "white" }}
+                    >
+                      {item.author} - {item.publisher}
+                    </Text>
+                    <View style={{justifyContent:'center',alignContent:'center'}}>
+                      <StarRating
+                          disabled={true}
+                          maxStars={5}
+                          rating={parseInt(item.rate)}
+                      />
+                    </View>
+                  </View>
+              </View>
               ))}
             </ScrollView>
           </View>

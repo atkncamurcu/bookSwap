@@ -5,20 +5,14 @@ import GradientButton from "../../components/GradientButton";
 import styles from './style';
 import {SimpleAlert} from "../../components/AlertModal";
 import client from '../../services/new_client';
+import stringCapitalizer from '../../services/utils';
 
 export default class Trade extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
-            incomingOffers : [],
-            outgoingOffers : [],
-            selectedBegin : "#ec232b",
-            selectedEnd : "#f05e2c",
-            unselectedColor : "#2d2f4e",
-            selected : true,
-            modalIndex : 0
-
+            tradeList : [],
         }
     }
 
@@ -26,33 +20,46 @@ export default class Trade extends React.Component {
       let {data: user} = await client.get('/user');
       this.setState({user});
     }
+
+    promisedSetState = (newState) => {
+      return new Promise((resolve) => {
+          this.setState(newState, () => {
+              resolve()
+          });
+      });
+    }
+
+    async getTradeList(){
+      let {data} = await client.get("/trade/list");
+      let tradeList = data.map(e => {
+        return{
+          id:e.id,
+          owner_book_id: e.owner_book_id,
+          owner_id : e.owner_id,
+          trader_id : e.trader_id,
+          preferred_book_id : e.preferred_book_id,
+          description : e.description,
+          published_year : e.published_year,
+          attrition : e.attrition,
+          status: e.status,
+          owner_book: e.owner_book,
+          preferred_book: e.preferred_book
+        };
+      });
+      await this.promisedSetState({tradeList})
+    }
   
     async componentDidMount() {
       this.updateUser();
+      this.getTradeList();
+      this.props.navigation.addListener('didBlur', ({action}) => {
+        if (!action.actions)
+            return;
+        action = action.actions[0];
+    })
   }
 
     render() {
-
-        const incoming = <View style={{flex:1}}>
-             <ScrollView style={{backgroundColor:'grey'}}>
-              {this.state.incomingOffers.map((item, index) => (
-                <View>
-                  
-                </View>
-              ))}
-            </ScrollView>
-        </View>
-
-        const outgoing = <View style={{flex:1}}>
-        <ScrollView style={{backgroundColor:'orange'}}>
-         {this.state.outgoingOffers.map((item, index) => (
-           <View>
-             
-           </View>
-         ))}
-       </ScrollView>
-   </View>
-
         return (
             <View style={{ flex: 1 }}>
         {background()}
@@ -84,42 +91,89 @@ export default class Trade extends React.Component {
             />
         </View>
         <View style={{flex:9}}>
-          <View style={{flexDirection:'row',flex:1}}>
-          <GradientButton
-              style={{
-                marginTop:10,
-                marginBottom:10,
-                flex:1,
-                height: 50,
+        <Text style={{marginTop:8,fontSize:28,color:'white',textAlign:'left',marginLeft:'3%'}}>
+                        Created Trades
+                  </Text>
+        <ScrollView>
+                  {this.state.tradeList.map((item, index) => (
+                      <View style={{backgroundColor: index % 2 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)',paddingVertical:10}} key={index}>
+                        <View style={{flexDirection:"column" }}>
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Owner Book
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0 }}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {item.owner_book.name} 
+                            </Text>
+                          </View>
 
-              }}
-              textStyle={{ fontSize: 16 }}
-              gradientBegin={this.state.selected ? this.state.selectedBegin : this.state.unselectedColor}
-              gradientEnd={this.state.selected ? this.state.selectedEnd : this.state.unselectedColor}
-              gradientDirection="diagonal"
-              radius={10}
-              text="Incoming Offers"
-              onPressAction={_ => this.setState({selected : true, modalIndex:0})}
-            />
-            <GradientButton
-              style={{
-                marginTop:10,
-                marginBottom:10,
-                flex:1,
-                height: 50,
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Preferred Book
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0}}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {item.preferred_book.name} 
+                            </Text>
+                          </View>
 
-              }}
-              textStyle={{ fontSize: 16 }}
-              gradientBegin={!this.state.selected ? this.state.selectedBegin : this.state.unselectedColor}
-              gradientEnd={!this.state.selected ? this.state.selectedEnd : this.state.unselectedColor}
-              gradientDirection="diagonal"
-              radius={10}
-              text="Outgoing Offers"
-              onPressAction={_ => this.setState({selected : false,  modalIndex:1})}
-            />
-          </View>
-          <View style={{flex:8}}>
-          {this.state.modalIndex == 0 ? incoming : outgoing }
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Attrition
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0}}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {stringCapitalizer(item.attrition)} 
+                            </Text>
+                          </View>
+
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Publish Year
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0}}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {item.published_year} 
+                            </Text>
+                          </View>
+
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Status
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0}}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {stringCapitalizer(item.status)} 
+                            </Text>
+                          </View>
+                          
+                          <View style={{flexDirection:"row",justifyContent:'space-between'}}>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0,marginLeft:8 }}>
+                                  Description
+                            </Text>
+                            <Text style={{ textAlign: "left", fontSize: 16, color: "white",flex:0}}>
+                                  :
+                            </Text>
+                            <Text style={{ textAlign: "right", fontSize: 16, color: "white",flex:1,marginRight:15}}>
+                                {item.description} 
+                            </Text>
+                          </View>
+
+                        </View>
+                      </View>
+                  ))}
+                </ScrollView>
           <GradientButton
               style={{
                 position: 'absolute',
@@ -140,7 +194,6 @@ export default class Trade extends React.Component {
               onPressAction={_ => this.props.navigation.navigate('CreateTrade')}
             />
           </View>
-        </View>
       </View>
         );
     }

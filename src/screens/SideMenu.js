@@ -67,7 +67,7 @@ export default class SideMenu extends React.Component {
                             children={
                                 <View style={{justifyContent:'space-between',flexDirection:'row'}}>
                             <Image style={{width: 18, height: 18}} key={1}
-                                              source={require('../assets/setting-icon.png')}/>
+                                              source={require('../assets/profile.png')}/>
                                 <Text style={{color:'#fff'}} key={2}> Profile </Text>
                                 </View>}
                             style={{marginTop: 15}}
@@ -84,14 +84,14 @@ export default class SideMenu extends React.Component {
                             width='75%'
                             radius={20}
                             children={
-                                <View style={{justifyContent:'space-around',flexDirection:'row'}}>
-                                <Image style={{width:18, height:18}} key={1}
-                                    source={require("../assets/transaction-tab.png")}/>
-                                <Text style={{color:'#fff'}} key={2}> BookDetail </Text>
+                                <View style={{justifyContent:'space-between',flexDirection:'row'}}>
+                            <Image style={{width: 18, height: 18}} key={1}
+                                              source={require('../assets/setting-icon.png')}/>
+                                <Text style={{color:'#fff'}} key={2}> Settings </Text>
                                 </View>}
                             style={{marginTop: 15}}
                             onPressAction={() => {
-                                this.props.navigation.navigate('BookDetail')
+                                this.props.navigation.navigate('Settings')
                             }}
                         />
                         <GradientButton

@@ -8,9 +8,13 @@ import background from '../../components/background'
 
 import {View as AnimationView} from 'react-native-animatable'
 import {BarPasswordStrengthDisplay} from 'react-native-password-strength-meter'
+import { Dropdown } from "react-native-material-dropdown";
+
 
 import styles from './style';
 import client from '../../services/new_client';
+import city_client from "../../services/city_client";
+
 
 
 export default class Login extends React.Component {
@@ -25,7 +29,11 @@ export default class Login extends React.Component {
         password_confirmation: "",
         name: "",
         modalIndex: 0,
-        pin: ""
+        pin: "",
+        city: [],
+        district: [],
+        user_city:"",
+        user_town:"",
     };
 
     constructor() {
@@ -52,7 +60,7 @@ export default class Login extends React.Component {
                     {
                         text: 'Cancel',
                         close: true,
-                        backgroundColor: '#61c3c2',
+                        backgroundColor: '#ec232b',
                     }
                 ]
             });
@@ -70,7 +78,7 @@ export default class Login extends React.Component {
                         style={styles.input}
                         onChangeText={(pin) => this.setState({pin})}
                         placeholder='Pin'
-                       placeholderTextColor="grey"
+                       placeholderTextColor="white"
                         keyboardType='numeric'
                         secureTextEntry={true}
 
@@ -80,7 +88,7 @@ export default class Login extends React.Component {
                     {
                         text: 'Cancel',
                         close: true,
-                        backgroundColor: '#61c3c2',
+                        backgroundColor: '#ec232b',
                     },
                     {
                         text: 'OK',
@@ -129,7 +137,7 @@ export default class Login extends React.Component {
                     {
                         text: 'Cancel',
                         close: true,
-                        backgroundColor: '#61c3c2'
+                        backgroundColor: '#ec232b'
                     },
                     {
                         text: 'Send',
@@ -167,7 +175,7 @@ export default class Login extends React.Component {
                         {
                             text: 'No, Thanks',
                             close: true,
-                            backgroundColor: '#61c3c2',
+                            backgroundColor: '#ec232b',
                             onPress: () => {
                                 if (verificated)
                                     this.props.navigation.navigate('Home')
@@ -192,7 +200,7 @@ export default class Login extends React.Component {
                             style={styles.input}
                             onChangeText={(pin) => this.setState({pin})}
                             placeholder='New Pin'
-                           placeholderTextColor="grey"
+                           placeholderTextColor="white"
                             keyboardType='numeric'
                         />
                     ),
@@ -200,7 +208,7 @@ export default class Login extends React.Component {
                         {
                             text: 'Cancel',
                             close: true,
-                            backgroundColor: '#61c3c2',
+                            backgroundColor: '#ec232b',
                         },
                         {
                             text: 'OK',
@@ -227,7 +235,9 @@ export default class Login extends React.Component {
                 email: this.state.email,
                 password: this.state.password,
                 password_confirmation: this.state.password_confirmation,
-                name: this.state.name
+                name: this.state.name,
+                city: this.state.user_city,
+                district: this.state.user_town
             });
         Alert({
                 title: 'Information',
@@ -265,10 +275,30 @@ export default class Login extends React.Component {
             });
         });
     };
+    async getCityList(){
+        let {data} = await city_client.get("/cities?fields=name,towns")
+        let city = data.map( e=> {
+            return{
+              id: e._id,
+              name: e.name,
+              towns: e.towns
+            };
+          });
+          await this.promisedSetState({city});
+    }
+
+    chooseCity(value,index){
+        this.setState({user_city : value});
+        this.setState({district : this.state.city[index].towns})
+       }
+       
+       chooseTown(value){
+         this.setState({user_town : value});
+       }
 
     async componentDidMount() {
         this.login();
-
+        this.getCityList();
         this.setState({fontLoaded: true});
     }
 
@@ -282,7 +312,7 @@ export default class Login extends React.Component {
                 onChangeText={(email) => this.setState({email})}
                 value={this.state.email}
                 placeholder="Email"
-               placeholderTextColor="grey"
+               placeholderTextColor="white"
                 keyboardType="email-address"
                 autoCapitalize='none'
             />
@@ -291,7 +321,7 @@ export default class Login extends React.Component {
                 onChangeText={(password) => this.setState({password})}
                 value={this.state.password}
                 placeholder="Password"
-               placeholderTextColor="grey"
+               placeholderTextColor="white"
                 textContentType="password"
                 autoCapitalize='none'
                 secureTextEntry={true}
@@ -303,17 +333,11 @@ export default class Login extends React.Component {
                 </Text>
             </View>
             <View style={{flexDirection: 'row'}}>
-                {/* <TouchableOpacity onPress={_ => this.setState({modalIndex: 1})} style={styles.signBtn}>
-                    <Text style={{fontSize: 18,fontFamily:'made-evolve-regular'} }> Sign Up</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={this.loginPostWithEmail} style={[styles.signBtn,{backgroundColor:'#d05b74'}]}>
-                    <Text style={{fontSize: 18,fontFamily:'made-evolve-regular'} }> Login</Text>
-                </TouchableOpacity> */}
                  <GradientButton
                     style={styles.signBtn}
                     textStyle={{fontSize: 18}}
-                    gradientBegin="#61c3c2"
-                    gradientEnd="#61c3c2"
+                    gradientBegin="#ec232b"
+                    gradientEnd="#ec232b"
                     gradientDirection="diagonal"
                     radius={13}
                     text="Sign Up"
@@ -340,14 +364,14 @@ export default class Login extends React.Component {
                 onChangeText={(name) => this.setState({name})}
                 value={this.state.name}
                 placeholder="Full Name"
-               placeholderTextColor="grey"
+               placeholderTextColor="white"
             />
             <TextInput
                 style={styles.input}
                 onChangeText={(email) => this.setState({email})}
                 value={this.state.email}
                 placeholder="Email"
-                placeholderTextColor="grey"
+                placeholderTextColor="white"
                 keyboardType="email-address"
                 autoCapitalize='none'
             />
@@ -356,7 +380,7 @@ export default class Login extends React.Component {
                 onChangeText={this.onChange}
                 value={this.state.password}
                 placeholder="Password"
-                placeholderTextColor="grey"
+                placeholderTextColor="white"
                 textContentType='password'
                 autoCapitalize='none'
                 maxLength={20}
@@ -373,15 +397,33 @@ export default class Login extends React.Component {
                 onChangeText={(password_confirmation) => this.setState({password_confirmation})}
                 value={this.state.password_confirmation}
                 placeholder="Confirm Password"
-                placeholderTextColor="grey"
+                placeholderTextColor="white"
                 textContentType="password"
                 autoCapitalize='none'
                 maxLength={20}
                 secureTextEntry={true}
             />
+             <Dropdown
+              containerStyle={{width:'100%',maxHeight:'10%'}}
+              textColor="white"
+              selectedItemColor="black"
+              baseColor="white"
+              label="CITY"
+              data={this.state.city.map((item, index) => ({ value: item.name }))}
+              onChangeText={(value,index)=> this.chooseCity(value,index)}
+            />
+            <Dropdown
+              containerStyle={{width:'100%'}}
+              textColor="white"
+              selectedItemColor="black"
+              baseColor="white"
+              label="DISTRICT"
+              data={this.state.district.map((item, index) => ({ value: item.name }))}
+              onChangeText={(value,index)=> this.chooseTown(value)}
+            />
             <View style={{flexDirection: 'row'}}>
                 <TouchableHighlight
-                    style={[styles.signBtn, {backgroundColor: "#61c3c2", borderRadius: 13}]}
+                    style={[styles.signBtn, {backgroundColor: "#ec232b", borderRadius: 13}]}
                     textStyle={{fontSize: 18,}}
                     onPress={_ => this.setState({modalIndex: 0})}
                 >
@@ -393,19 +435,6 @@ export default class Login extends React.Component {
                 <TouchableOpacity onPress={this.registerPostWithEmail} style={[styles.signBtn,{backgroundColor:"#354A82"}]}>
                     <Text style={{color:'white',fontSize: 18,} }> Register</Text>
                 </TouchableOpacity>
-                
-                {/* <GradientButton
-                    style={styles.signBtn}
-                    textStyle={{fontSize: 18, fontFamily: 'made-evolve-regular'}}
-                    gradientBegin="#d05b74"
-                    gradientEnd="#d05b74"
-                    gradientDirection="diagonal"
-                    radius={13}
-                    text="Register"
-                    onPressAction={this.registerPostWithEmail}
-
-                /> */}
-
             </View>
         </View>;
 
@@ -415,13 +444,13 @@ export default class Login extends React.Component {
                 onChangeText={(email) => this.setState({email})}
                 value={this.state.email}
                 placeholder="Email"
-               placeholderTextColor="grey"
+               placeholderTextColor="white"
                 keyboardType="email-address"
                 autoCapitalize='none'
             />
             <View style={{flexDirection: 'row'}}>
                 <TouchableHighlight
-                    style={[styles.signBtn, {backgroundColor: "#61c3c2", borderRadius: 13}]}
+                    style={[styles.signBtn, {backgroundColor: "#ec232b", borderRadius: 13}]}
                     textStyle={{fontSize: 18,}}
                     onPress={_ => this.setState({modalIndex: 0})}
                 >

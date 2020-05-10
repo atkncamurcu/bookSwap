@@ -1,10 +1,10 @@
 import {SimpleAlert} from '../components/AlertModal';
 
-class Client {
+class CityClient {
     constructor() {
         this.token = null;
         this.verificated = false;
-        this.root = "http://91562e56.ngrok.io/api"
+        this.root = "https://il-ilce-rest-api.herokuapp.com/v1"
     }
 
     fetch = async function (url, method, body = null) {
@@ -15,12 +15,10 @@ class Client {
             credentials: 'omit',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                ...(!!this.token ? {'Authorization': 'Bearer ' + this.token} : {})
+                'Accept': 'application/json'
             },
         });
         let json = await response.json();
-        //console.log(json);
         if (!response.ok) {
             if (!json.success) {
                 let errors = Object.values(json.errors);
@@ -72,4 +70,4 @@ class Client {
     }
 }
 
-export default new Client()
+export default new CityClient()

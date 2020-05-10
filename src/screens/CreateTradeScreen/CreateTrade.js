@@ -1,46 +1,118 @@
 import React from "react";
 import {
-  Clipboard,
   Image,
-  ScrollView,
-  Text,
   TouchableOpacity,
   View,
-  Dimensions,
-  PixelRatio,
-  TextInput
+  TextInput,
+  Text,
+  Platform,
+  KeyboardAvoidingView
 } from "react-native";
 import background from "../../components/background";
 import { Dropdown } from "react-native-material-dropdown";
 import GradientButton from "../../components/GradientButton";
 import styles from "./style";
-import { SimpleAlert } from "../../components/AlertModal";
+import client from '../../services/new_client';
+import stringCapitalizer from '../../services/utils';
+import { Alert } from "../../components/AlertModal";
+
 
 export default class CreateTrade extends React.Component {
+
+  
+
   constructor(props) {
     super(props);
     this.state = {
       user: {},
-      books: [
-        "Harry Potter",
-        "Grinin 50 Tonu",
-        "Harry Potter",
-        "Grinin 50 Tonu"
-      ],
-      city: ["Izmir", "Ankara", "Istanbul", "Bursa"],
-      district: ["Narlıdere",'Balçova',"Üçyol",'Bornova'],
-      attrition: ['Yeni','Az yıpranmış','Yıpranmış'],
-      publish_year : ["1990","1991","1992","1993"],
-      preferred_book : ["Araba Sevdası","Saatleri Ayarlama Enstitüsü","Araba Sevdası","Saatleri Ayarlama Enstitüsü"],
-      description : ""
-
+      books: [],
+      city: [],
+      district: [],
+      attrition: ["new","newish","good","fair","bad"],
+      publish_year : Array(100).fill(0).map((i,k)=>new Date().getFullYear()-k),
+      user_book_id:null,
+      user_attrition:"",
+      user_publish_year:null,
+      user_preferred_book_id:null,
+      description : "",
+  
     };
   }
 
+  promisedSetState = (newState) => {
+    return new Promise((resolve) => {
+        this.setState(newState, () => {
+            resolve()
+        });
+    });
+  }
+
+  chooseBook(value,index){
+    this.setState({user_book_id : this.state.books[index].id})
+  }
+
+  chooseAttrition(value){
+    var attrition = value.toLowerCase();
+    this.setState({user_attrition : attrition});
+
+  }
+
+  choosePublishYear(value){
+    this.setState({user_publish_year : value});
+
+  }
+
+  choosePreferredBook(value,index){
+    this.setState({user_preferred_book_id : this.state.books[index].id})
+
+  }
+
+  
+  async createTrade(){
+    await client.post('/trade/create',
+    { owner_book_id: this.state.user_book_id,  
+      attrition: this.state.user_attrition,
+      published_year: this.state.user_publish_year,
+      preferred_book_id: this.state.user_preferred_book_id,
+      description: this.state.description
+    });
+    Alert({
+      title:'Information',
+      slot: (<Text style={{color: '#afafb5'}}>Successfully created a trade.</Text>),
+      buttons:[{
+        text: 'OK',
+        close: true,
+        onPress: () => {this.props.navigation.navigate('Trade')}
+      }]
+    })
+  }
+
+  async getAllBooks(){
+    let {data} = await client.get('/books/all');
+    let books = data.map(e => {
+      return{
+        id:e.id,
+        name:e.name,
+      };
+    });
+    await this.promisedSetState({books})
+  }
+
+
+  async componentDidMount(){
+    this.getAllBooks();
+  }
+  
   render() {
+   
     return (
       <View style={{ flex: 1 }}>
         {background()}
+        <KeyboardAvoidingView 
+                        style={{flex: 1, backgroundColor: 'transparent'}} 
+                        behavior= {(Platform.OS === 'ios')? "padding" : null}
+                        enabled
+        >
         <View
           style={{
             backgroundColor: "rgba(0,0,0,0.5)",
@@ -83,28 +155,16 @@ export default class CreateTrade extends React.Component {
               selectedItemColor="black"
               baseColor="white"
               label="BOOK"
-              data={this.state.books.map((item, index) => ({ value: item }))}
-            />
-            <Dropdown
-              textColor="white"
-              selectedItemColor="black"
-              baseColor="white"
-              label="CITY"
-              data={this.state.city.map((item, index) => ({ value: item }))}
-            />
-            <Dropdown
-              textColor="white"
-              selectedItemColor="black"
-              baseColor="white"
-              label="DISTRICT"
-              data={this.state.district.map((item, index) => ({ value: item }))}
+              data={this.state.books.map((item, index) => ({ value: item.name }))}
+              onChangeText={(value,index)=> this.chooseBook(value,index)}
             />
             <Dropdown
               textColor="white"
               selectedItemColor="black"
               baseColor="white"
               label="ATTRITION"
-              data={this.state.attrition.map((item, index) => ({ value: item }))}
+              data={this.state.attrition.map((item, index) => ({ value: stringCapitalizer(item) }))}
+              onChangeText={(value,index)=> this.chooseAttrition(value)}
             />
             <Dropdown
               textColor="white"
@@ -112,27 +172,32 @@ export default class CreateTrade extends React.Component {
               baseColor="white"
               label="PUBLISH YEAR"
               data={this.state.publish_year.map((item, index) => ({ value: item }))}
+              onChangeText={(value,index)=> this.choosePublishYear(value)}
             />
             <Dropdown
               textColor="white"
               selectedItemColor="black"
               baseColor="white"
               label="PREFERRED BOOK"
-              data={this.state.preferred_book.map((item, index) => ({ value: item }))}
+              data={this.state.books.map((item, index) => ({ value: item.name }))}
+              onChangeText={(value,index)=> this.choosePreferredBook(value,index)}
             />
             <View style={{flex:4}}>
-                <TextInput multiline={true} style={{flex:3,backgroundColor: "#444b9c",padding:10,marginBottom:5}}
+                <TextInput style={{flex:3,backgroundColor: "#444b9c",padding:10,marginBottom:5}}
                     onChangeText={description => this.setState({ description })}
-                    value={this.state.searchText}
+                    textAlignVertical="top"    
+                    value={this.state.description}
                     placeholder="Description..."
                     placeholderTextColor="white"
                     autoCapitalize="none"
+                    returnKeyType="done"
                 />
-                <View style={{flex:1,flexDirection:'row'}}>
+            </View>
+            <View style={{flex:1,flexDirection:'row'}}>
                 <GradientButton
                 style={{
                 justifyContent: "center",
-                height:'100%',
+                height:'80%',
                 flex:1
               }}
               textStyle={{ fontSize: 16 }}
@@ -147,7 +212,7 @@ export default class CreateTrade extends React.Component {
               style={{
                 justifyContent: "center",
                 flex:1,
-                height:'100%'
+                height:'80%'
               }}
               textStyle={{ fontSize: 16 }}
               gradientBegin="#ec232b"
@@ -155,14 +220,14 @@ export default class CreateTrade extends React.Component {
               gradientDirection="diagonal"
               radius={10}
               text="Create"
-              onPressAction={_ => this.props.navigation.navigate("Search")}
+              onPressAction={_ => this.createTrade()}
             />
                 </View>
                 
-            </View>
             
           </View>
         </View>
+        </KeyboardAvoidingView>
       </View>
     );
   }

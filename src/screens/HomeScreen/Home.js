@@ -60,7 +60,13 @@ goDetail(book_id){
       }
     })
     await this.promisedSetState({popularTraders});
+
   }
+
+  getSearchDetails(searchText){
+      this.props.navigation.navigate('Search',{searchText : searchText});
+  }
+    
 
   async getRecentylBooks(){
     let {data} = await client.get('/books/recently');
@@ -159,7 +165,7 @@ goDetail(book_id){
               gradientDirection="diagonal"
               radius={10}
               text="SEARCH"
-              onPressAction={_ => this.props.navigation.navigate("Search")}
+              onPressAction={_ => this.getSearchDetails(this.state.searchText)}
             />
           </View>
           <View style={{ flexDirection: "column", flex:8}}>
