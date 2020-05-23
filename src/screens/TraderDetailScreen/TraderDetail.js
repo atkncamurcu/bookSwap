@@ -53,7 +53,6 @@ export default class TraderDetail extends React.Component {
         const { navigation } = this.props;
         const detail = navigation.getParam("item", "NO-ITEM");
         let {data : preferredBook} = await client.get('/books/detail/' + detail.preferred_book_id)
-        console.log(preferredBook);
         this.setState({preferredBook});
     }
 
@@ -69,7 +68,8 @@ export default class TraderDetail extends React.Component {
                 publisher: e.publisher,
                 author: e.author,
                 year: e.year,
-                rate: e.rate
+                rate: e.rate,
+                link: e.link
             };
         });
         await this.promisedSetState({wishList});
@@ -121,7 +121,7 @@ export default class TraderDetail extends React.Component {
             <View style={{ flex: 9,marginTop:10}}>
               <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5}}>
                 <Image
-                  source={require('../../assets/dummy-book.jpeg')}
+                  source={{uri:this.state.traderDetail.owner_book.link}}
                   style={{
                     paddingVertical:15,
                     resizeMode: "contain",
@@ -197,7 +197,7 @@ export default class TraderDetail extends React.Component {
                     {this.state.wishList.map((item, index) => (
                         <View style={{ backgroundColor: index % 2 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)'}} key={index}>
                           <View style={{flexDirection:"row",paddingVertical:10 }}>
-                              <Image source={require('../../assets/dummy-book.jpeg')} style={{flex:0,resizeMode: "contain",height: 100,width: 100}}/>
+                              <Image source={{uri:item.link}} style={{flex:0,resizeMode: "contain",height: 100,width: 100}}/>
                               <View style={{flexDirection: "column",flex:1}}>
                                   <Text style={{ textAlign: "center", fontSize: 24, color: "white" }}>
                                       {item.name}

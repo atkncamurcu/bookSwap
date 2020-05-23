@@ -88,7 +88,8 @@ async getSearchResultsFromHome(){
         author: e.author,
         year: e.year,
         rate: e.rate,
-        marked: e.marked
+        marked: e.marked,
+        link: e.link
       };
     });
     await this.promisedSetState({searchList});
@@ -188,7 +189,7 @@ async getSearchResultsFromHome(){
                                   onPress={() => this.goDetail(item.id)}
                                   >
                   <Image
-                    source={require('../../assets/dummy-book.jpeg')}
+                    source={{uri: item.link}}
                     style={{
                       resizeMode: "contain",
                       height: 100,

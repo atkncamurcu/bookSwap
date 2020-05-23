@@ -45,7 +45,8 @@ export default class Profile extends React.Component {
           name: e.name,
           publisher: e.publisher,
           author: e.author,
-          rate: e.rate
+          rate: e.rate,
+          link: e.link
       }
     })
     await this.promisedSetState({wishList});
@@ -222,7 +223,7 @@ export default class Profile extends React.Component {
 
                 <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5, backgroundColor: index % 2 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)' }} key={index}>
                   <Image
-                    source={require('../../assets/dummy-book.jpeg')}
+                    source={{uri:item.link}}
                     style={{
                       resizeMode: "contain",
                       height: 100,

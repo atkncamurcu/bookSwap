@@ -109,8 +109,7 @@ async toggleBookmark(id){
     const { navigation } = this.props;
     const book_id = navigation.getParam("book_id", "NO-ID");
     let { data: bookDetail } = await client.get("/books/detail/" + book_id);
-    this.setState({ bookDetail });
-    //console.log(this.state.bookDetail);
+    this.setState({ bookDetail })
   }
 
   async getBookComments() {
@@ -143,8 +142,8 @@ async toggleBookmark(id){
           published_year: e.published_year,
           attrition: e.attrition,
           status: e.status,
-          owner: e.owner
-
+          owner: e.owner,
+          owner_book: e.owner_book
         };
       });
       await this.promisedSetState({similarBooks});
@@ -157,10 +156,11 @@ async toggleBookmark(id){
   
 
   async componentDidMount() {
-    this.getBookDetails();
+    await this.getBookDetails();
     this.getBookComments();
     this.getSimilarBooks();
   }
+
 
   render() {
     const {goBack} = this.props.navigation;
@@ -202,14 +202,13 @@ async toggleBookmark(id){
         </View>
         <View style={{ flex: 9,marginTop:10,}}>
           <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5 }}>
-            <Image
-              source={require('../../assets/dummy-book.jpeg')}
-              style={{
-                resizeMode: "contain",
-                height: 100,
-                width: 100
-              }}
-            />
+          <Image source={{uri: this.state.bookDetail.link}} 
+            style={{
+              resizeMode: "contain",
+              height: 100,
+              width: 100
+            }}
+          />
             <View
               style={{
                 flexDirection: "column"

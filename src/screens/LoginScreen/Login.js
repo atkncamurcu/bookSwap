@@ -121,7 +121,7 @@ export default class Login extends React.Component {
         if (!success)
             return {success};
 
-        let result = await LocalAuthentication.authenticateAsync(message);
+        let result = await LocalAuthentication.authenticateAsync({promptMessage: message});
         return result
     };
     

@@ -43,8 +43,6 @@ goDetail(book_id){
   async updateUser() {
     let {data: user} = await client.get('/user');
     this.setState({user});
-    //console.log(this.state.user)
-
   }
 
   async getPopularTraders(){
@@ -56,7 +54,8 @@ goDetail(book_id){
         city : e.city,
         district : e.district,
         avatar : e.avatar,
-        rate : e.rate
+        rate : e.rate,
+        type : e.type
       }
     })
     await this.promisedSetState({popularTraders});
@@ -78,7 +77,8 @@ goDetail(book_id){
         publisher : e.publisher,
         publish_year : e.year,
         author : e.author,
-        rate : e.rate  
+        rate : e.rate,
+        link: e.link  
       };
     });
     await this.promisedSetState({recentlyBooks});
@@ -177,7 +177,7 @@ goDetail(book_id){
               <ScrollView horizontal={true} style={{flex: 4.5, backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
               {this.state.recentlyBooks.map((item, index) => (
                 <TouchableOpacity style={{height:150,width:150,marginLeft:10,alignSelf:'center',justifyContent:'center'}} onPress={() => this.goDetail(item.id)} key={index}>
-                    <Image style={{ height:150,width:150,resizeMode:'contain'}} source={require('../../assets/dummy-book.jpeg')}/>
+                    <Image style={{ height:150,width:150,resizeMode:'contain'}} source={{uri: item.link}} />
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -191,6 +191,7 @@ goDetail(book_id){
 
             <ScrollView horizontal={true} style={{ flex: 2.9, backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
               {this.state.popularTraders.map((item, index) => (
+                item.type == 'user' &&
                 <View style={{marginLeft:15,marginTop:20,alignItems:'center'}} key={index}>
                   <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30,alignSelf:'center'}} source={{uri:item.avatar}}/>
                   <Text style={{fontSize:12,color:'white',textAlign:'center',marginTop:5}}> {item.name}</Text>
