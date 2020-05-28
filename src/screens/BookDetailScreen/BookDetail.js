@@ -10,12 +10,12 @@ import {
 import background from "../../components/background";
 import StarRating from "react-native-star-rating";
 import GradientButton from "../../components/GradientButton";
-import styles from "./style";
 import client from "../../services/new_client";
 import {IndicatorViewPager} from 'rn-viewpager';
 import stringCapitalizer from '../../services/utils';
-import {Alert, SimpleAlert} from '../../components/AlertModal';
-import { Rating,AirbnbRating } from 'react-native-ratings';
+import {Alert} from '../../components/AlertModal';
+import { AirbnbRating } from 'react-native-ratings';
+import styles from "./style";
 
 
 
@@ -50,8 +50,8 @@ onStarRatingPress(rating) {
      Alert({
        title: 'Add Comment',
        slot: (
-           <View style={{height:'80%',}}>
-             <View style={{flex:1,marginTop: 20}}>
+           <View style={styles.commentAlertWrapper}>
+             <View style={styles.ratingWrapper}>
              <AirbnbRating
                 count={5}
                 defaultRating={this.state.bookDetail.rate}
@@ -59,9 +59,9 @@ onStarRatingPress(rating) {
                 onFinishRating={(rating) => this.onStarRatingPress(rating)}
              />
              </View>
-             <View style={{flex:5,marginTop:20}}>
+             <View style={styles.inputWrapper}>
                <TextInput 
-                style={{backgroundColor:'white',flex:1}}
+                style={styles.input}
                 onChangeText={(userComment) => this.setState({userComment})}
                 placeholder='Comment...'
                 placeholderTextColor="grey"
@@ -83,6 +83,7 @@ onStarRatingPress(rating) {
               onPress: async() => {
                 await client.post("/book/comments/add",{book_id: this.state.bookDetail.id, body: this.state.userComment, rate: this.state.starCount})
                 await this.getBookComments();
+                await this.getBookDetails();
 
               }
            }
@@ -165,66 +166,31 @@ async toggleBookmark(id){
   render() {
     const {goBack} = this.props.navigation;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.fullScreen}>
         {background()}
-        <View
-          style={{
-            backgroundColor: "rgba(0,0,0,0.5)",
-            flex: 1,
-            alignItems: "center",
-            flexDirection: "row"
-          }}
-        >
+        <View style={styles.headerView}>
           <TouchableOpacity onPress={() => goBack()}>
             <Image
               source={require("../../assets/backIcon.png")}
-              style={{
-                resizeMode: "contain",
-                bottom: "25%",
-                marginLeft: 10,
-                height: 30,
-                width: 30,
-                marginTop: 30
-              }}
+              style={styles.backIcon}
             />
           </TouchableOpacity>
           <Image
             source={require("../../assets/header-logo.png")}
-            style={{
-              bottom: "3.5%",
-              height: 50,
-              width: 150,
-              marginTop: 30,
-              marginLeft: "18%",
-              justifyContent: "center"
-            }}
+            style={styles.headerLogo}
           />
         </View>
-        <View style={{ flex: 9,marginTop:10,}}>
-          <View style={{flexDirection:"row",justifyContent:'space-around', flex:1.5 }}>
-          <Image source={{uri: this.state.bookDetail.link}} 
-            style={{
-              resizeMode: "contain",
-              height: 100,
-              width: 100
-            }}
-          />
-            <View
-              style={{
-                flexDirection: "column"
-              }}
-            >
-              <Text
-                style={{ textAlign: "center", fontSize: 24, color: "white" }}
-              >
+        <View style={styles.mainView}>
+          <View style={styles.bookDetailWrapper}>
+          <Image source={{uri: this.state.bookDetail.link}} style={styles.bookImage}/>
+            <View style={styles.columnDirection}>
+              <Text style={styles.bookName}>
                 {this.state.bookDetail.name}
               </Text>
-              <Text
-                style={{ textAlign: "center", fontSize: 12, color: "white" }}
-              >
+              <Text style={styles.authorName}>
                 {this.state.bookDetail.author} - {this.state.bookDetail.publisher}
               </Text>
-              <View style={{justifyContent:'center',alignContent:'center'}}>
+              <View style={styles.rating}>
                 <StarRating
                     disabled={true}
                     maxStars={5}
@@ -232,41 +198,30 @@ async toggleBookmark(id){
                 />
               </View>
             </View>
-            <TouchableOpacity style={{alignItems:'center',justifyContent:'center'}} onPress={_  => this.toggleBookmark(this.state.bookDetail.id)}>
+            <TouchableOpacity style={styles.bookmarkButton} onPress={_  => this.toggleBookmark(this.state.bookDetail.id)}>
                     <Image
                       source={this.bookmarkImage(this.state.bookDetail.marked)}
-                      style={{
-                        alignSelf:'center',
-                        resizeMode: "contain",
-                        height: 30,
-                        width: 30
-                      }}
+                      style={styles.bookmarkImage}
                     />
                   </TouchableOpacity>
           </View>
 
-          <View style={{flex:3.5,marginTop:5}}>
-            <IndicatorViewPager style={{flex:1,backgroundColor:"rgba(0, 0, 0, 0.5)"}}>
+          <View style={styles.commentWrapper}>
+            <IndicatorViewPager style={styles.indicator}>
             {this.state.comments.map((item, index) => (
-                <View style={{justifyContent:'center', alignItems:'center',marginTop:20}} key={index}>
-                  <View style={{flexDirection:"row"}}>
-                    <Image source={require("../../assets/backIcon.png")} style={{marginRight:'30%',marginTop:20,resizeMode: "contain",height: 20,width: 20}}/>
-                    <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30}} source={{uri: item.user.avatar}}/>
-                    <Image source={require("../../assets/nextIcon.png")} style={{marginLeft:'30%',marginTop:20,resizeMode: "contain",height: 20,width: 20}}/>
+                <View style={styles.commentItem} key={index}>
+                  <View style={styles.rowDirection}>
+                    <Image source={require("../../assets/backIcon.png")} style={styles.commentBackIcon}/>
+                    <Image style={styles.commentAvatar} source={{uri: item.user.avatar}}/>
+                    <Image source={require("../../assets/nextIcon.png")} style={styles.commentNextIcon}/>
                   </View>
-                  <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.user.city}</Text>
-                  <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.body} - {item.rate}</Text>
+                  <Text style={styles.commentInfos}> {item.user.city}</Text>
+                  <Text style={styles.commentInfos}> {item.body} - {item.rate}</Text>
                 </View>
               ))}
             </IndicatorViewPager>
             <GradientButton
-              style={{
-                marginTop:10,
-                marginBottom:10,
-                alignSelf:'center',
-                width:'40%',
-                height: 50,
-              }}
+              style={styles.addCommentButton}
               textStyle={{ fontSize: 16 }}
               gradientBegin="#ec232b"
               gradientEnd="#f05e2c"
@@ -277,8 +232,8 @@ async toggleBookmark(id){
             />
           </View>
 
-          <View style={{flex:4}}>
-              <Text style={{fontSize:30,color:'white',textAlign:'left',marginLeft:'3%'}}>
+          <View style={styles.similarWrapper}>
+              <Text style={styles.similarTitle}>
                     SIMILAR TRADES
               </Text>
               <ScrollView>
@@ -289,10 +244,10 @@ async toggleBookmark(id){
                   onPress={() => this.getTraders(item)} 
                   key={index}
                 >
-                  <View style={{paddingVertical:10,flexDirection:'row',alignItems:'center',justifyContent:'space-around'}}>
-                    <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30}} source={{uri: item.owner.avatar}}/>
-                    <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.owner.name}</Text>
-                    <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> Trade Status: {stringCapitalizer(item.status)}</Text>
+                  <View style={style.similarItem}>
+                    <Image style={styles.similarAvatar} source={{uri: item.owner.avatar}}/>
+                    <Text style={styles.commentInfos}> {item.owner.name}</Text>
+                    <Text style={styles.commentInfos}> Trade Status: {stringCapitalizer(item.status)}</Text>
                   </View>
                 </TouchableOpacity>
                 ):
@@ -303,10 +258,10 @@ async toggleBookmark(id){
                   key={index}
                   disabled={true}
                 >
-                  <View style={{paddingVertical:10,flexDirection:'row',alignItems:'center',justifyContent:'space-around'}}>
-                    <Image style={{ height:60,width:60,resizeMode:'stretch',borderRadius:30}} source={{uri: item.owner.avatar}}/>
-                    <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> {item.owner.name}</Text>
-                    <Text style={{fontSize:14,color:'white',textAlign:'center',marginTop:10}}> Trade Status: {stringCapitalizer(item.status)}</Text>
+                  <View style={styles.similarItem}>
+                    <Image style={styles.similarAvatar} source={{uri: item.owner.avatar}}/>
+                    <Text style={styles.commentInfos}> {item.owner.name}</Text>
+                    <Text style={styles.commentInfos}> Trade Status: {stringCapitalizer(item.status)}</Text>
                   </View>
                 </TouchableOpacity>
                 )

@@ -312,7 +312,7 @@ export default class Login extends React.Component {
                 onChangeText={(email) => this.setState({email})}
                 value={this.state.email}
                 placeholder="Email"
-               placeholderTextColor="white"
+                placeholderTextColor="white"
                 keyboardType="email-address"
                 autoCapitalize='none'
             />

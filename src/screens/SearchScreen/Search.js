@@ -1,21 +1,17 @@
 import React from "react";
 import {
-  Clipboard,
   Image,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
-  PixelRatio,
   TextInput
 } from "react-native";
 import background from "../../components/background";
 import GradientButton from "../../components/GradientButton";
-import styles from "./style";
-import { SimpleAlert } from "../../components/AlertModal";
 import client from '../../services/new_client';
 import StarRating from "react-native-star-rating";
+import styles from "./style";
 
 
 export default class Search extends React.Component {
@@ -93,7 +89,6 @@ async getSearchResultsFromHome(){
       };
     });
     await this.promisedSetState({searchList});
-    console.log(this.state.searchList);
   }
 
   async componentDidMount(){
