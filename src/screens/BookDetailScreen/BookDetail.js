@@ -244,7 +244,7 @@ async toggleBookmark(id){
                   onPress={() => this.getTraders(item)} 
                   key={index}
                 >
-                  <View style={style.similarItem}>
+                  <View style={styles.similarItem}>
                     <Image style={styles.similarAvatar} source={{uri: item.owner.avatar}}/>
                     <Text style={styles.commentInfos}> {item.owner.name}</Text>
                     <Text style={styles.commentInfos}> Trade Status: {stringCapitalizer(item.status)}</Text>
