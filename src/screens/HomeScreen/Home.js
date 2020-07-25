@@ -64,6 +64,7 @@ goDetail(book_id){
 
   getSearchDetails(searchText){
       this.props.navigation.navigate('Search',{searchText : searchText});
+      
   }
     
 
